@@ -1,0 +1,15 @@
+[HEADER]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "weseed-ai-agent"
+version = "0.1.0"
+description = "WeSeed AI Agent"
+requires-python = ">=3.12"
+
+[tool.pytest.ini_options]
+pythonpath = "."
+testpaths = ["tests"]

@@ -1,0 +1,102 @@
+# NCAI OCR 파이프라인 - Airflow 스택 (LocalExecutor, 단일 노드)
+#
+# 구성:
+#   - postgres        : Airflow 메타데이터 전용 DB (데이터 저장용 외부 DB와 무관)
+#   - airflow-init    : DB 마이그레이션 + 관리자 계정 생성 (1회성)
+#   - airflow-scheduler / airflow-webserver
+#
+# 데이터 저장용 PostgreSQL은 컨테이너화하지 않고 .env의 DB_* 로 외부 접속한다.
+# (호스트에서 도는 DB라면 .env의 DB_HOST를 host.docker.internal 로 설정)
+
+x-airflow-common: &airflow-common
+  build: .
+  env_file:
+    - .env
+  environment: &airflow-common-env
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+    AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "true"
+    # 재사용 비즈니스 로직(config/batchs/...) import 경로
+    PYTHONPATH: /opt/airflow/include/ncai_ocr
+    # sentence-transformers 모델 캐시 (재다운로드 방지)
+    HF_HOME: /opt/airflow/.cache/huggingface
+  volumes:
+    - ./dags:/opt/airflow/dags
+    - ./include:/opt/airflow/include
+    - ./logs:/opt/airflow/logs
+    - ./data:/opt/airflow/data
+    - ./gpt_error_txt:/opt/airflow/gpt_error_txt
+    - ./hf_cache:/opt/airflow/.cache/huggingface
+  user: "${AIRFLOW_UID:-50000}:0"
+  # 호스트에서 도는 외부 DB 접속용 (Linux에서 host.docker.internal 활성화)
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
+  depends_on: &airflow-common-depends-on
+    postgres:
+      condition: service_healthy
+
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - airflow-db-volume:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 10s
+      retries: 5
+      start_period: 5s
+    restart: always
+
+  airflow-init:
+    <<: *airflow-common
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        airflow db migrate
+        airflow users create \
+          --username "${_AIRFLOW_WWW_USER_USERNAME:-airflow}" \
+          --password "${_AIRFLOW_WWW_USER_PASSWORD:-airflow}" \
+          --firstname admin --lastname admin --role Admin \
+          --email admin@example.com || true
+    restart: on-failure
+
+  airflow-scheduler:
+    <<: *airflow-common
+    command: scheduler
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8974/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: always
+    depends_on:
+      <<: *airflow-common-depends-on
+      airflow-init:
+        condition: service_completed_successfully
+
+  airflow-webserver:
+    <<: *airflow-common
+    command: webserver
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: always
+    depends_on:
+      <<: *airflow-common-depends-on
+      airflow-init:
+        condition: service_completed_successfully
+
+volumes:
+  airflow-db-volume:

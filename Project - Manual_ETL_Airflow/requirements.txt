@@ -1,0 +1,9 @@
+# NCAI OCR 파이프라인 - Airflow 이미지에 추가 설치되는 프로젝트 의존성
+# (Airflow 본체/스케줄러 관련 패키지는 베이스 이미지에 포함되어 있으므로 제외)
+PyMuPDF==1.26.6
+openai==2.9.0
+sentence-transformers
+pandas==2.3.3
+psycopg2-binary==2.9.11
+python-dotenv==1.2.1
+tqdm==4.67.1

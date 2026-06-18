@@ -1,0 +1,9 @@
+﻿inquiryType,JSON
+전화번호 연락처 폰 휴대폰 핸드폰 모바일 전화 회사번호,"{""inquiryPhysicalColumn"": ""[""TelNo"", ""Mobile""]"", ""inquiryLogicalColumn"": ""전화번호"", ""actionItem"": ""전화번호"", ""inquiryWhere"":""{{inquiryWhere}}""}"
+이메일 email 메일 e-mail,"{""inquiryPhysicalColumn"": ""[""Email""]"", ""inquiryLogicalColumn"": ""이메일"", ""actionItem"": ""이메일"", ""inquiryWhere"":""{{inquiryWhere}}""}"
+주소 집 위치 장소 동네 지역 거주,"{""inquiryPhysicalColumn"": ""[""Addr1"", ""Addr2""]"", ""inquiryLogicalColumn"": ""주소"", ""actionItem"": ""주소"", ""inquiryWhere"":""{{inquiryWhere}}""}"
+A B C D F 등급 급 고객등급 고객사등급,"{""inquiryPhysicalColumn"": ""[""ClientGrade"", ""CustGrade""]"", ""inquiryLogicalColumn"": ""등급"", ""actionItem"": ""등급"", ""inquiryWhere"":""{{inquiryWhere}}""}"
+부서 단체 직렬 직장 팀,"{""inquiryPhysicalColumn"": ""[""DeptNm""]"", ""inquiryLogicalColumn"": ""주소"", ""actionItem"": ""주소"", ""inquiryWhere"":""{{inquiryWhere}}""}"
+직급 직책 계급 직위,"{""inquiryPhysicalColumn"": ""[""JobTitle""]"", ""inquiryLogicalColumn"": ""직위"", ""actionItem"": ""직위"", ""inquiryWhere"":""{{inquiryWhere}}""}"
+사업자 등록,"{""inquiryPhysicalColumn"": ""[""BizRegNo""]"", ""inquiryLogicalColumn"": ""사업자등록번호"", ""actionItem"": ""사업자등록번호"", ""inquiryWhere"":""{{inquiryWhere}}""}"
+대표님 CEO 대표 사장 대표이사,"{""inquiryPhysicalColumn"": ""[""Ceo""]"", ""inquiryLogicalColumn"": ""대표"", ""actionItem"": ""대표"", ""inquiryWhere"":""{{inquiryWhere}}""}"
